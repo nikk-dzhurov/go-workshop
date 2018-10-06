@@ -20,6 +20,10 @@ type serverConfig struct {
 	name   string
 }
 
+type apiController struct {
+	counter int
+}
+
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
 
@@ -34,8 +38,10 @@ func main() {
 
 	possibleErrors := make(chan error, 2)
 
+	ctrl := &apiController{counter: 0}
+
 	router := mux.NewRouter()
-	router.HandleFunc("/", helloHandler)
+	router.HandleFunc("/", ctrl.helloHandler)
 	diagnosticsRouter := diagnostics.NewDiagnostics()
 
 	configs := []serverConfig{
@@ -43,7 +49,7 @@ func main() {
 		{port: diagnosticsPort, router: diagnosticsRouter, name: "Diagnostics server"},
 	}
 
-	servers := make([]*http.Server, 2)
+	servers := make([]*http.Server, len(configs))
 	for i, c := range configs {
 		go func(config serverConfig, idx int) {
 			servers[idx] = &http.Server{
@@ -64,7 +70,6 @@ func main() {
 
 	select {
 	case err := <-possibleErrors:
-
 		log.Printf("Got an error: %s\n", err.Error())
 	case sig := <-interrupt:
 		log.Printf("Received the signal %v\n", sig)
@@ -80,11 +85,12 @@ func main() {
 			log.Println(customErr.Error())
 		}
 
-		log.Println("Server gracefully stopped")
+		log.Printf("Server on address %s,gracefully stopped\n", s.Addr)
 	}
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print("The hello handler was called")
+func (ctrl *apiController) helloHandler(w http.ResponseWriter, r *http.Request) {
+	ctrl.counter++
+	log.Printf("The hello handler was called, count %d\n", ctrl.counter)
 	fmt.Fprintf(w, http.StatusText(http.StatusOK))
 }
