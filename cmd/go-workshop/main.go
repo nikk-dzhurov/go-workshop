@@ -22,23 +22,40 @@ func main() {
 		log.Fatal("Provide DIAG_PORT environment variable")
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/", helloHandler)
+	possibleErrors := make(chan error, 2)
 
 	go func() {
+		router := mux.NewRouter()
+		router.HandleFunc("/", helloHandler)
+		server := &http.Server{
+			Addr:    ":" + blPort,
+			Handler: router,
+		}
+
 		log.Printf("The application server is starting on port: %s\n", blPort)
-		err := http.ListenAndServe(":"+blPort, router)
+		err := server.ListenAndServe()
 		if err != nil {
-			log.Fatalln("Server error: %s\n", err.Error())
+			possibleErrors <- fmt.Errorf("Server error: %s\n", err.Error())
 		}
 	}()
 
-	diagnostics := diagnostics.NewDiagnostics()
+	go func() {
+		diagnosticsRouter := diagnostics.NewDiagnostics()
+		diagServer := &http.Server{
+			Addr:    ":" + diagnosticsPort,
+			Handler: diagnosticsRouter,
+		}
 
-	log.Printf("The diagnostics server is starting on port: %s\n", diagnosticsPort)
-	err := http.ListenAndServe(":"+diagnosticsPort, diagnostics)
-	if err != nil {
-		log.Fatalln("Server error: %s\n", err.Error())
+		log.Printf("The diagnostics server is starting on port: %s\n", diagnosticsPort)
+		err := diagServer.ListenAndServe()
+		if err != nil {
+			possibleErrors <- fmt.Errorf("Diagnostics server error: %s\n", err.Error())
+		}
+	}()
+
+	select {
+	case err := <-possibleErrors:
+		log.Fatal(err)
 	}
 }
 
