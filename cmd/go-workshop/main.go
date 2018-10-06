@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nikk-dzhurov/go_workshop/internal/diagnostics"
 )
+
+type ServerConfig struct {
+	port   string
+	router http.Handler
+	name   string
+}
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags)
@@ -24,38 +31,37 @@ func main() {
 
 	possibleErrors := make(chan error, 2)
 
-	go func() {
-		router := mux.NewRouter()
-		router.HandleFunc("/", helloHandler)
-		server := &http.Server{
-			Addr:    ":" + blPort,
-			Handler: router,
-		}
+	router := mux.NewRouter()
+	router.HandleFunc("/", helloHandler)
+	diagnosticsRouter := diagnostics.NewDiagnostics()
 
-		log.Printf("The application server is starting on port: %s\n", blPort)
-		err := server.ListenAndServe()
-		if err != nil {
-			possibleErrors <- fmt.Errorf("Server error: %s\n", err.Error())
-		}
-	}()
+	configs := []ServerConfig{
+		{port: blPort, router: router, name: "Application server"},
+		{port: diagnosticsPort, router: diagnosticsRouter, name: "Diagnostics server"},
+	}
 
-	go func() {
-		diagnosticsRouter := diagnostics.NewDiagnostics()
-		diagServer := &http.Server{
-			Addr:    ":" + diagnosticsPort,
-			Handler: diagnosticsRouter,
-		}
+	servers := make([]*http.Server, 2)
+	for i, c := range configs {
+		go func(config ServerConfig, idx int) {
+			servers[idx] = &http.Server{
+				Addr:    ":" + config.port,
+				Handler: config.router,
+			}
 
-		log.Printf("The diagnostics server is starting on port: %s\n", diagnosticsPort)
-		err := diagServer.ListenAndServe()
-		if err != nil {
-			possibleErrors <- fmt.Errorf("Diagnostics server error: %s\n", err.Error())
-		}
-	}()
+			log.Printf("The %s is starting on port: %s\n", config.name, config.port)
+			err := servers[idx].ListenAndServe()
+			if err != nil {
+				possibleErrors <- fmt.Errorf("%s error: %s\n", config.name, err.Error())
+			}
+		}(c, i)
+	}
 
 	select {
 	case err := <-possibleErrors:
-		log.Fatal(err)
+		for _, s := range servers {
+			s.Shutdown(context.Background())
+		}
+		log.Fatal(err.Error())
 	}
 }
 
