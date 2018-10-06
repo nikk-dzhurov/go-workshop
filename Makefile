@@ -4,7 +4,7 @@ GOARCH?=amd64
 
 PROJECT?=github.com/nikk-dzhurov/go_workshop
 BUILD_PATH?=cmd/go_workshop
-APP?=go_workshop
+APP?=go-workshop
 
 PORT?=8000
 DIAG_PORT?=3001
