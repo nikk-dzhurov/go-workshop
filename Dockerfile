@@ -23,8 +23,8 @@ COPY --from=0 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=0 /etc/passwd /etc/passwd
 USER myapp
 
-COPY --from=0 /go/src/github.com/nikk-dzhurov/go_workshop/bin/go_workshop /go_workshop
+COPY --from=0 /go/src/github.com/nikk-dzhurov/go_workshop/bin/go_workshop /go-workshop
 EXPOSE $PORT
 EXPOSE $DIAG_PORT
 
-CMD ["/go_workshop"]
+CMD ["/go-workshop"]
