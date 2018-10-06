@@ -10,7 +10,7 @@ WORKDIR /go/src/github.com/nikk-dzhurov/go_workshop
 
 # build the binary with go build
 RUN CGO_ENABLED=0 go build \
-	-o bin/go_workshop github.com/nikk-dzhurov/go_workshop/cmd/go_workshop
+	-o bin/go-workshop github.com/nikk-dzhurov/go_workshop/cmd/go_workshop
 
 # Stage 2. Run the binary
 FROM scratch
