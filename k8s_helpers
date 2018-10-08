@@ -1,0 +1,26 @@
+kubectl config set-cluster ws-${USER} \
+    --embed-certs=true \
+    --server=https://35.187.39.10 \
+    --certificate-authority=${CA_PATH}
+kubectl config set-credentials ws-${USER} --token=${TOKEN}
+kubectl config set-context ws-${USER} \
+    --cluster=ws-${USER} \
+    --user=ws-${USER} \
+    --namespace=${USER}
+kubectl config use-context ws-${USER}
+
+kubectl get pods
+
+
+### helpers
+
+# create and expose app
+kubectl run hello-app --image=gcr.io/google-samples/hello-app:1.0 --port=8080 -n ${USER}
+kubectl expose deployment hello-app -n ${USER}
+
+
+# check pods
+kubectl -n ${USER} get pods
+kubectl -n ${USER} describe pod pod-name
+
+kubectl -n ${USER} apply -f ingress.yml 
