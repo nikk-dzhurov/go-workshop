@@ -9,7 +9,7 @@ ADD . /go/src/github.com/nikk-dzhurov/go-workshop
 WORKDIR /go/src/github.com/nikk-dzhurov/go-workshop
 
 # build the binary with go build
-RUN CGO_ENABLED=0 go build \
+RUN CGO_ENABLED=0 GO111MODULE=on go build \
 	-o bin/go-workshop github.com/nikk-dzhurov/go-workshop/cmd/go-workshop
 
 # Stage 2. Run the binary
