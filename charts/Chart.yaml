@@ -1,6 +1,6 @@
 name: go-workshop
 description: A Helm charts for Kubernetes application
-version: 0.0.1
+version: 0.0.3
 home: https://k8s.community/
 sources:
   - https://github.com/nikk-dzhurov/go-workshop
