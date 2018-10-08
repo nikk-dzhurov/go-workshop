@@ -1,1 +1,1 @@
-# go_workshop
+# go-workshop

@@ -1,4 +1,4 @@
-module github.com/nikk-dzhurov/go_workshop
+module github.com/nikk-dzhurov/go-workshop
 
 require (
 	github.com/gorilla/context v1.1.1 // indirect
