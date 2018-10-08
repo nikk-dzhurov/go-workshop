@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/nikk-dzhurov/go_workshop/internal/diagnostics"
+	"github.com/nikk-dzhurov/go-workshop/internal/diagnostics"
 )
 
 type serverConfig struct {
@@ -85,7 +85,7 @@ func main() {
 			log.Println(customErr.Error())
 		}
 
-		log.Printf("Server on address %s,gracefully stopped\n", s.Addr)
+		log.Printf("Server on address %s, gracefully stopped\n", s.Addr)
 	}
 }
 

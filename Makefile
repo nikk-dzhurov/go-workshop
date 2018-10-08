@@ -2,15 +2,15 @@
 GOOS?=linux
 GOARCH?=amd64
 
-PROJECT?=github.com/nikk-dzhurov/go_workshop
-BUILD_PATH?=cmd/go_workshop
+PROJECT?=github.com/nikk-dzhurov/go-workshop
+BUILD_PATH?=cmd/go-workshop
 APP?=go-workshop
 
 PORT?=8000
 DIAG_PORT?=3001
 
 # Current version and commit
-RELEASE?=0.0.1
+RELEASE?=0.0.3
 COMMIT?=$(shell git rev-parse --short HEAD)
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 
